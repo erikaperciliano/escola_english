@@ -205,6 +205,23 @@ class PessoaController {
             return res.status(500).json(error.message);
         }
     }
+
+    static async pegaTurmasLotadas(req, res) {
+        const lotacaoTurma = 2 ;
+
+        try {
+            const turmasLotadas = await database.Matriculas.findAndCountAll({
+                where: {
+                    status: 'confirmado'
+                },
+                attributes: ['turma_id'],
+                group: ['turma_id']
+            })
+            return res.status(200).json(turmasLotadas);
+        } catch (error) {
+            return res.status(500).json(error.message);
+        }
+    }
 }
 
 module.exports = PessoaController;
