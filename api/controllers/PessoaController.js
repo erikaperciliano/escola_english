@@ -6,7 +6,7 @@ class PessoaController {
     //consulta a tabela de pessoas e traz o resultado
     static async pegaPessoasAtivas(req, res) {
         try {
-            const pessoasAtivas = await pessoasServices.pegaTodosOsRegistros();
+            const pessoasAtivas = await pessoasServices.pegaRegistrosAtivos();
             return res.status(200).json(pessoasAtivas);
         } catch (error) {
             return res.status(500).json(error.message);
@@ -15,7 +15,7 @@ class PessoaController {
 
     static async pegaTodasAsPessoas(req, res){
         try{
-            const todasAsPessoas = await database.Pessoas.scope('todos').findAll();
+            const todasAsPessoas = await pessoasServices.pegaTodosOsRegistros();
             return res.status(200).json(todasAsPessoas);
         }catch(error){
             return res.status(500).json(error.message);
@@ -231,31 +231,9 @@ class PessoaController {
         const {estudanteId} = req.params;
 
         try {
-            database.sequelize.transaction(async transacao => {
-                await database.Pessoas.update({
-                    ativo: false
-                },
-                {
-                    where: {
-                        id: Number(estudanteId)
-                    }
-                },
-                {
-                    transaction: transacao
-                })
-                await database.Matriculas.update({
-                    status: 'cancelado'
-                },
-                {   where: {
-                        estudante_id: Number(estudanteId)
-                    }
-                },
-                {
-                    transaction: transacao
-                })
-                return res.status(200).json({
-                    message: `Matrículas ref. estudante: ${estudanteId} canceladas!`
-                })
+            await pessoasServices.cancelaPessoasEMatriculas(Number(estudanteId))
+            return res.status(200).json({
+                message: `Matrículas ref. estudante: ${estudanteId} canceladas!`
             })
             
         } catch (error) {
