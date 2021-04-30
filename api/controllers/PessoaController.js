@@ -196,7 +196,9 @@ class PessoaController {
                 where: {
                     turma_id: Number(turmaId),
                     status: 'confirmado'
-                }
+                },
+                limit: 20,
+                order: [['estudante_id', 'ASC']]
             })
             return res.status(200).json(todasAsMatriculas)
         } catch (error) {
